@@ -187,11 +187,12 @@ applyEff(eff)}
 function applyEff(eff){const char=gs.character;let logs=[];Object.keys(eff).forEach(k=>{let v=eff[k];if(Array.isArray(v)){const ok=Math.random()>0.4;const val=ok?v[0]:v[1];cs[k]=Math.max(0,(cs[k]||0)+val);logs.push(k+':'+(val>=0?'+':'')+val+(ok?'✅':'❌'))}else{cs[k]=Math.max(0,(cs[k]||0)+v);logs.push(k+':'+(v>=0?'+':'')+v)}})
 char.talents.forEach(t=>{if(t.eff.IQ_G){cs.IQ+=t.eff.IQ_G;logs.push('智力:+'+t.eff.IQ_G+'🎁')}if(t.eff.CHA_G){cs.CHA+=t.eff.CHA_G;logs.push('魅力:+'+t.eff.CHA_G+'🎁')}if(t.eff.LUCK_G){cs.LUCK+=t.eff.LUCK_G;logs.push('运气:+'+t.eff.LUCK_G+'🎁')}})
 gs.age++;gs.history.push({age:gs.age,changes:logs});save();updateStats();checkEnding()}
+function continueGame(){if(cs.HP>0&&gs.age<100){nextEvent()}
 function checkEnding(){let ending=null;for(let en of ENDINGS){if(en.cond&&en.cond({...cs,age:gs.age})){if(!ending||(en.order&&(!ending.order||en.order<ending.order))){ending=en}}}
 if(ending){if(!gs.endings.includes(ending.id)){gs.endings.push(ending.id);save()}
 showEnding(ending);return}
-if(gs.age>=100){showEnding({name:'寿终正寝',type:'normal',desc:'活到了100岁'})}
-}
+if(gs.age>=100){showEnding({name:'寿终正寝',type:'normal',desc:'活到了100岁'});return}
+continueGame()}
 function showEnding(en){let html='<h3 style="color:'+(en.type==='death'?'#ef4444':en.type==='special'?'#feca57':'#4ade80')+'">'+en.name+'</h3><p>'+en.desc+'</p><p style="color:#888;margin-top:15px">享年：'+gs.age+'岁</p>';
 if(gs.history.length>0){html+='<div style="margin-top:20px"><h4>人生轨迹：</h4>'+gs.history.slice(-10).map(h=>'<p style="color:#aaa;font-size:0.9em">'+h.age+'岁：'+h.changes.join('，')+'</p>').join('')+'</div>'}
 document.getElementById('endingDetailTitle').innerHTML='🏆 '+en.name;document.getElementById('endingDetailContent').innerHTML=html;show('endingDetail')
@@ -205,7 +206,9 @@ function restartGame(){clearGame();startGame()}
 function clearGame(){localStorage.removeItem('rebirth');gs={character:null,stats:null,age:0,endings:[],history:[]};cs=null}
 function show(id){['mainMenu','characterCreate','gameInterface','endingInterface','endingDetail','statsInterface'].forEach(i=>document.getElementById(i).classList.add('hidden'));document.getElementById(id).classList.remove('hidden')}
 function backToMenu(){show('mainMenu')}
-load();
+if(!load()){
+  show('mainMenu');
+}
 </script>
 </body>
 </html>
