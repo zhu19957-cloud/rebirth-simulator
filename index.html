@@ -187,7 +187,7 @@ applyEff(eff)}
 function applyEff(eff){const char=gs.character;let logs=[];Object.keys(eff).forEach(k=>{let v=eff[k];if(Array.isArray(v)){const ok=Math.random()>0.4;const val=ok?v[0]:v[1];cs[k]=Math.max(0,(cs[k]||0)+val);logs.push(k+':'+(val>=0?'+':'')+val+(ok?'✅':'❌'))}else{cs[k]=Math.max(0,(cs[k]||0)+v);logs.push(k+':'+(v>=0?'+':'')+v)}})
 char.talents.forEach(t=>{if(t.eff.IQ_G){cs.IQ+=t.eff.IQ_G;logs.push('智力:+'+t.eff.IQ_G+'🎁')}if(t.eff.CHA_G){cs.CHA+=t.eff.CHA_G;logs.push('魅力:+'+t.eff.CHA_G+'🎁')}if(t.eff.LUCK_G){cs.LUCK+=t.eff.LUCK_G;logs.push('运气:+'+t.eff.LUCK_G+'🎁')}})
 gs.age++;gs.history.push({age:gs.age,changes:logs});save();updateStats();checkEnding()}
-function continueGame(){if(cs.HP>0&&gs.age<100){nextEvent()}
+function continueGame(){if(cs.HP>0&&gs.age<100){nextEvent()}}
 function checkEnding(){let ending=null;for(let en of ENDINGS){if(en.cond&&en.cond({...cs,age:gs.age})){if(!ending||(en.order&&(!ending.order||en.order<ending.order))){ending=en}}}
 if(ending){if(!gs.endings.includes(ending.id)){gs.endings.push(ending.id);save()}
 showEnding(ending);return}
