@@ -40,7 +40,6 @@ h1{text-align:center;font-size:2.5em;margin-bottom:10px;background:linear-gradie
 <div class="container">
 <h1>重生模拟器</h1>
 <p class="subtitle">每一次人生，都是全新的开始</p>
-
 <div id="mainMenu" class="fade-in">
 <div class="card" style="text-align:center">
 <p style="margin-bottom:20px;color:#aaa">随机属性、职业、性别、天赋<br>每次事件增长1岁<br>体验各种人生结局...</p>
@@ -49,7 +48,6 @@ h1{text-align:center;font-size:2.5em;margin-bottom:10px;background:linear-gradie
 <button class="btn btn-secondary" onclick="showStats()">我的档案</button>
 </div>
 </div>
-
 <div id="characterCreate" class="hidden">
 <div class="card fade-in">
 <h2 style="margin-bottom:20px">随机生成中...</h2>
@@ -60,7 +58,6 @@ h1{text-align:center;font-size:2.5em;margin-bottom:10px;background:linear-gradie
 </div>
 </div>
 </div>
-
 <div id="gameInterface" class="hidden">
 <div class="card fade-in">
 <h2>人生第 <span id="ageDisplay">0</span> 年</h2>
@@ -73,7 +70,6 @@ h1{text-align:center;font-size:2.5em;margin-bottom:10px;background:linear-gradie
 <div class="choices" id="choicesArea"></div>
 </div>
 </div>
-
 <div id="endingInterface" class="hidden">
 <div class="card fade-in">
 <h2>结局列表</h2>
@@ -82,7 +78,6 @@ h1{text-align:center;font-size:2.5em;margin-bottom:10px;background:linear-gradie
 <button class="btn" onclick="backToMenu()" style="margin-top:20px">返回主菜单</button>
 </div>
 </div>
-
 <div id="endingDetail" class="hidden">
 <div class="card fade-in">
 <h2 id="endingDetailTitle"></h2>
@@ -91,7 +86,6 @@ h1{text-align:center;font-size:2.5em;margin-bottom:10px;background:linear-gradie
 <button class="btn btn-secondary" onclick="showEndings()">返回结局列表</button>
 </div>
 </div>
-
 <div id="statsInterface" class="hidden">
 <div class="card fade-in">
 <h2>人生档案</h2>
@@ -100,10 +94,9 @@ h1{text-align:center;font-size:2.5em;margin-bottom:10px;background:linear-gradie
 </div>
 </div>
 </div>
-
 <script>
-const GENDERS=['男','女'];
-const CAREERS=[
+var GENDERS=['男','女'];
+var CAREERS=[
 {name:'程序员',stats:{IQ:30,MONEY:20,LUCK:10,HP:70,CHA:15},desc:'996是福报'},
 {name:'教师',stats:{IQ:25,MONEY:15,LUCK:20,HP:75,CHA:30},desc:'桃李满天下'},
 {name:'医生',stats:{IQ:30,MONEY:25,LUCK:15,HP:65,CHA:20},desc:'救死扶伤'},
@@ -113,7 +106,7 @@ const CAREERS=[
 {name:'科学家',stats:{IQ:35,MONEY:25,LUCK:15,HP:70,CHA:15},desc:'探索真理'},
 {name:'艺术家',stats:{IQ:25,MONEY:15,LUCK:20,HP:75,CHA:35},desc:'灵魂创作'}
 ];
-const TALENTS=[
+var TALENTS=[
 {name:'天才',desc:'智力+20%',eff:{IQ_P:20}},
 {name:'魅力出众',desc:'魅力+20%',eff:{CHA_P:20}},
 {name:'运气爆表',desc:'运气+20%',eff:{LUCK_P:20}},
@@ -126,25 +119,25 @@ const TALENTS=[
 {name:'社交达人',desc:'每次魅力+2',eff:{CHA_G:2}},
 {name:'幸运儿',desc:'每次运气+2',eff:{LUCK_G:2}}
 ];
-const ENDINGS=[
-{id:'peaceful',name:'安详离世',type:'normal',cond:s=>s.age>=70&&s.HP<=10,desc:'在睡梦中安然去世'},
-{id:'rich',name:'富甲一方',type:'normal',cond:s=>s.MONEY>=200,desc:'成为了大富翁'},
-{id:'wise',name:'智慧老人',type:'normal',cond:s=>s.age>=60&&s.IQ>=50,desc:'受人尊敬'},
-{id:'heroic',name:'英雄壮烈',type:'normal',cond:s=>s.HP<=0&&s.LUCK>30,desc:'为他人献出生命'},
-{id:'car_accident',name:'车祸身亡',type:'death',cond:s=>s.HP<=0,desc:'意外车祸',order:1},
-{id:'heart_attack',name:'心脏病发',type:'death',cond:s=>s.age>=50&&s.HP<=0,desc:'心脏病发作',order:7},
-{id:'cancer',name:'癌症去世',type:'death',cond:s=>s.age>=45&&s.HP<=-20,desc:'与病魔斗争',order:8},
-{id:'suicide',name:'绝望离世',type:'death',cond:s=>s.HP<=0&&s.LUCK<=5,desc:'失去希望',order:9},
-{id:'celebrity',name:'成为名人',type:'special',cond:s=>s.CHA>=50&&s.age>=30,desc:'成为明星'},
-{id:'lottery',name:'彩票大奖',type:'special',cond:s=>s.MONEY>=150,desc:'中大奖'},
-{id:'scientist',name:'伟大科学家',type:'special',cond:s=>s.IQ>=60&&s.age>=40,desc:'做出贡献'},
-{id:'family',name:'家庭美满',type:'special',cond:s=>s.CHA>=30&&s.MONEY>=50&&s.age>=40,desc:'幸福家庭'},
-{id:'philosopher',name:'哲人',type:'special',cond:s=>s.IQ>=45&&s.age>=50&&s.MONEY<30,desc:'看破红尘'},
-{id:'master',name:'一代宗师',type:'special',cond:s=>s.IQ>=50&&s.age>=50&&s.CHA>=30,desc:'领域巅峰'},
-{id:'criminal',name:'锒铛入狱',type:'special',cond:s=>s.MONEY<0,desc:'违法犯罪'},
-{id:'adventurer',name:'冒险家',type:'special',cond:s=>s.LUCK>=50&&s.HP>=60,desc:'经历冒险'}
+var ENDINGS=[
+{id:'peaceful',name:'安详离世',type:'normal',cond:function(s){return s.age>=70&&s.HP<=10},desc:'在睡梦中安然去世'},
+{id:'rich',name:'富甲一方',type:'normal',cond:function(s){return s.MONEY>=200},desc:'成为了大富翁'},
+{id:'wise',name:'智慧老人',type:'normal',cond:function(s){return s.age>=60&&s.IQ>=50},desc:'受人尊敬'},
+{id:'heroic',name:'英雄壮烈',type:'normal',cond:function(s){return s.HP<=0&&s.LUCK>30},desc:'为他人献出生命'},
+{id:'car_accident',name:'车祸身亡',type:'death',cond:function(s){return s.HP<=0},desc:'意外车祸',order:1},
+{id:'heart_attack',name:'心脏病发',type:'death',cond:function(s){return s.age>=50&&s.HP<=0},desc:'心脏病发作',order:7},
+{id:'cancer',name:'癌症去世',type:'death',cond:function(s){return s.age>=45&&s.HP<=-20},desc:'与病魔斗争',order:8},
+{id:'suicide',name:'绝望离世',type:'death',cond:function(s){return s.HP<=0&&s.LUCK<=5},desc:'失去希望',order:9},
+{id:'celebrity',name:'成为名人',type:'special',cond:function(s){return s.CHA>=50&&s.age>=30},desc:'成为明星'},
+{id:'lottery',name:'彩票大奖',type:'special',cond:function(s){return s.MONEY>=150},desc:'中大奖'},
+{id:'scientist',name:'伟大科学家',type:'special',cond:function(s){return s.IQ>=60&&s.age>=40},desc:'做出贡献'},
+{id:'family',name:'家庭美满',type:'special',cond:function(s){return s.CHA>=30&&s.MONEY>=50&&s.age>=40},desc:'幸福家庭'},
+{id:'philosopher',name:'哲人',type:'special',cond:function(s){return s.IQ>=45&&s.age>=50&&s.MONEY<30},desc:'看破红尘'},
+{id:'master',name:'一代宗师',type:'special',cond:function(s){return s.IQ>=50&&s.age>=50&&s.CHA>=30},desc:'领域巅峰'},
+{id:'criminal',name:'锒铛入狱',type:'special',cond:function(s){return s.MONEY<0},desc:'违法犯罪'},
+{id:'adventurer',name:'冒险家',type:'special',cond:function(s){return s.LUCK>=50&&s.HP>=60},desc:'经历冒险'}
 ];
-const EVENTS=[
+var EVENTS=[
 {min:0,max:5,texts:[{t:'你还是个婴儿，父母很爱你。',c:[]},{t:'你蹒跚学步，摔了一跤。',c:[]}]},
 {min:6,max:12,texts:[{t:'你开始上学了，结识了新朋友。',c:[]},{t:'考试优异获表扬！',c:[{tx:'继续努力',e:{IQ:5,LUCK:2}}]},{t:'和同学打架了。',c:[{tx:'道歉',e:{CHA:-2,LUCK:-2}},{tx:'坚持',e:{CHA:2,LUCK:-1}}]}]},
 {min:13,max:18,texts:[{t:'青春期到了。',c:[]},{t:'收到情书！',c:[{tx:'接受',e:{CHA:10,LUCK:5}},{tx:'拒绝',e:{CHA:5,IQ:3}}]},{t:'沉迷游戏。',c:[{tx:'沉迷',e:{IQ:-5,LUCK:5,MONEY:-10}},{tx:'止损',e:{IQ:3,LUCK:3}}]}]},
@@ -156,59 +149,69 @@ const EVENTS=[
 {min:71,max:100,texts:[{t:'回忆一生。',c:[{tx:'感慨',e:{CHA:5,LUCK:5}}]},{t:'身体衰弱。',c:[{tx:'接受',e:{HP:-10}}]}]},
 {min:0,max:100,rand:true,texts:[{t:'捡到钱！',c:[{tx:'开心',e:{MONEY:10,LUCK:5}}]},{t:'丢了东西。',c:[{tx:'倒霉',e:{MONEY:-10,LUCK:-5}}]},{t:'帮助别人。',c:[{tx:'助人',e:{CHA:5,LUCK:10}}]},{t:'被人帮助。',c:[{tx:'感谢',e:{LUCK:8,CHA:3}}]},{t:'生病了。',c:[{tx:'就医',e:{MONEY:-15,HP:-5}},{tx:'硬扛',e:{HP:-15}}]}]}
 ];
-let gs={character:null,stats:null,age:0,endings:[],history:[]},cs=null;
-function save(){localStorage.setItem('rebirth',JSON.stringify(gs))}
-function load(){const d=localStorage.getItem('rebirth');if(d){gs=JSON.parse(d);return true}return false}
+var gameState={character:null,stats:null,age:0,endings:[],history:[]};
+var currentStats=null;
+
+function save(){localStorage.setItem('rebirth',JSON.stringify(gameState))}
+function loadGame(){var d=localStorage.getItem('rebirth');if(d){gameState=JSON.parse(d);return true}return false}
 function rand(m,M){return Math.floor(Math.random()*(M-m+1))+m}
 function ri(a){return a[Math.floor(Math.random()*a.length)]}
 function genChar(){
-const g=ri(GENDERS),cr=ri(CAREERS),tcnt=rand(1,3),ts=[],used=new Set();
-for(let i=0;i<tcnt;i++){let idx;do{idx=rand(0,TALENTS.length-1)}while(used.has(idx));used.add(idx);ts.push(TALENTS[idx])}
-let s={...cr.stats};Object.keys(s).forEach(k=>s[k]=Math.max(1,s[k]+rand(-10,10)));
-ts.forEach(t=>{
-if(t.eff.IQ_P)s.IQ=Math.floor(s.IQ*1.2);if(t.eff.CHA_P)s.CHA=Math.floor(s.CHA*1.2);
-if(t.eff.LUCK_P)s.LUCK=Math.floor(s.LUCK*1.2);if(t.eff.HP_P)s.HP=Math.floor(s.HP*1.2);
-if(t.eff.MONEY_E)s.MONEY=Math.floor(s.MONEY*1.5);if(t.eff.OTHER){s.IQ=Math.floor(s.IQ*1.3);s.CHA=Math.floor(s.CHA*1.3);s.HP=Math.floor(s.HP*1.3)}
-if(t.eff.LUCK_N)s.LUCK=Math.floor(s.LUCK*0.7)
-});s.HP=Math.min(100,s.HP);return{gender:g,career:cr.name,desc:cr.desc,talents:ts,stats:s}
+var g=ri(GENDERS);
+var cr=ri(CAREERS);
+var tcnt=rand(1,3);
+var ts=[];
+var used={};
+for(var i=0;i<tcnt;i++){
+  var idx=rand(0,TALENTS.length-1);
+  while(used[idx]){idx=rand(0,TALENTS.length-1)}
+  used[idx]=true;
+  ts.push(TALENTS[idx])
+}
+var s={IQ:cr.stats.IQ,MONEY:cr.stats.MONEY,LUCK:cr.stats.LUCK,HP:cr.stats.HP,CHA:cr.stats.CHA};
+Object.keys(s).forEach(function(k){s[k]=Math.max(1,s[k]+rand(-10,10))});
+ts.forEach(function(t){
+  if(t.eff.IQ_P)s.IQ=Math.floor(s.IQ*1.2);
+  if(t.eff.CHA_P)s.CHA=Math.floor(s.CHA*1.2);
+  if(t.eff.LUCK_P)s.LUCK=Math.floor(s.LUCK*1.2);
+  if(t.eff.HP_P)s.HP=Math.floor(s.HP*1.2);
+  if(t.eff.MONEY_E)s.MONEY=Math.floor(s.MONEY*1.5);
+  if(t.eff.OTHER){s.IQ=Math.floor(s.IQ*1.3);s.CHA=Math.floor(s.CHA*1.3);s.HP=Math.floor(s.HP*1.3)}
+  if(t.eff.LUCK_N)s.LUCK=Math.floor(s.LUCK*0.7)
+});
+s.HP=Math.min(100,s.HP);
+return{gender:g,career:cr.name,desc:cr.desc,talents:ts,stats:s}
 }
 function dispChar(c){
-let html='<div style="text-align:center"><p style="font-size:1.2em;margin-bottom:15px"><strong>性别：</strong>'+c.gender+' <strong>职业：</strong>'+c.career+'</p><p style="color:#888;margin-bottom:15px">'+c.desc+'</p><div style="margin-bottom:20px"><strong>天赋：</strong><br>'+c.talents.map(t=>'<span class="talent-tag">'+t.name+'</span>').join('')+'</div><div class="stats-grid"><div class="stat-item"><div class="stat-label">智力</div><div class="stat-value">'+c.stats.IQ+'</div></div><div class="stat-item"><div class="stat-label">体力</div><div class="stat-value">'+c.stats.HP+'</div></div><div class="stat-item"><div class="stat-label">魅力</div><div class="stat-value">'+c.stats.CHA+'</div></div><div class="stat-item"><div class="stat-label">运气</div><div class="stat-value">'+c.stats.LUCK+'</div></div><div class="stat-item"><div class="stat-label">金钱</div><div class="stat-value">'+c.stats.MONEY+'</div></div></div></div>';
+var html='<div style="text-align:center"><p style="font-size:1.2em;margin-bottom:15px"><strong>性别：</strong>'+c.gender+' <strong>职业：</strong>'+c.career+'</p><p style="color:#888;margin-bottom:15px">'+c.desc+'</p><div style="margin-bottom:20px"><strong>天赋：</strong><br>'+c.talents.map(function(t){return'<span class="talent-tag">'+t.name+'</span>'}).join('')+'</div><div class="stats-grid"><div class="stat-item"><div class="stat-label">智力</div><div class="stat-value">'+c.stats.IQ+'</div></div><div class="stat-item"><div class="stat-label">体力</div><div class="stat-value">'+c.stats.HP+'</div></div><div class="stat-item"><div class="stat-label">魅力</div><div class="stat-value">'+c.stats.CHA+'</div></div><div class="stat-item"><div class="stat-label">运气</div><div class="stat-value">'+c.stats.LUCK+'</div></div><div class="stat-item"><div class="stat-label">金钱</div><div class="stat-value">'+c.stats.MONEY+'</div></div></div></div>';
 document.getElementById('randomCharacter').innerHTML=html
 }
-function startGame(){const c=genChar();gs.character=c;gs.stats={...c.stats};gs.age=0;gs.history=[];cs={...c.stats};dispChar(c);show('characterCreate')}
-function reroll(){const c=genChar();gs.character=c;gs.stats={...c.stats};cs={...c.stats};dispChar(c)}
-function confirmCharacter(){save();gs.age=0;cs={...gs.stats};show('gameInterface');updateStats();nextEvent()}
-function updateStats(){const maxAge=80-(gs.character.talents.some(t=>t.eff.LIFE)?20:0);const p=Math.min(100,(gs.age/maxAge)*100);document.getElementById('ageDisplay').textContent=gs.age;document.getElementById('lifeProgress').style.width=p+'%';document.getElementById('statsDisplay').innerHTML='<div class="stat-item"><div class="stat-label">年龄</div><div class="stat-value">'+gs.age+'</div></div><div class="stat-item"><div class="stat-label">智力</div><div class="stat-value">'+cs.IQ+'</div></div><div class="stat-item"><div class="stat-label">体力</div><div class="stat-value">'+cs.HP+'</div></div><div class="stat-item"><div class="stat-label">魅力</div><div class="stat-value">'+cs.CHA+'</div></div><div class="stat-item"><div class="stat-label">运气</div><div class="stat-value">'+cs.LUCK+'</div></div><div class="stat-item"><div class="stat-label">金钱</div><div class="stat-value">'+cs.MONEY+'</div></div>'}
-function getEvent(){const pool=EVENTS.filter(e=>!e.rand&&gs.age>=e.min&&gs.age<=e.max);const randPool=EVENTS.filter(e=>e.rand);const list=Math.random()>0.6?randPool:pool;return ri(list)}
-function nextEvent(){const e=getEvent(),et=ri(e.texts);document.getElementById('eventText').textContent=et.t;const ca=document.getElementById('choicesArea');if(et.c.length===0){ca.innerHTML='<button class="btn" onclick="handleChoice(null)">继续</button>'}else{ca.innerHTML=et.c.map((c,i)=>'<button class="choice-btn" onclick="handleChoice('+i+')">'+c.tx+'</button>').join('')}}
-function handleChoice(idx){const e=getEvent(),et=ri(e.texts);let eff={};if(idx!==null&&et.c[idx]){eff=et.c[idx].e||{}}
-applyEff(eff)}
-function applyEff(eff){const char=gs.character;let logs=[];Object.keys(eff).forEach(k=>{let v=eff[k];if(Array.isArray(v)){const ok=Math.random()>0.4;const val=ok?v[0]:v[1];cs[k]=Math.max(0,(cs[k]||0)+val);logs.push(k+':'+(val>=0?'+':'')+val+(ok?'✅':'❌'))}else{cs[k]=Math.max(0,(cs[k]||0)+v);logs.push(k+':'+(v>=0?'+':'')+v)}})
-char.talents.forEach(t=>{if(t.eff.IQ_G){cs.IQ+=t.eff.IQ_G;logs.push('智力:+'+t.eff.IQ_G+'🎁')}if(t.eff.CHA_G){cs.CHA+=t.eff.CHA_G;logs.push('魅力:+'+t.eff.CHA_G+'🎁')}if(t.eff.LUCK_G){cs.LUCK+=t.eff.LUCK_G;logs.push('运气:+'+t.eff.LUCK_G+'🎁')}})
-gs.age++;gs.history.push({age:gs.age,changes:logs});save();updateStats();checkEnding()}
-function continueGame(){if(cs.HP>0&&gs.age<100){nextEvent()}}
-function checkEnding(){let ending=null;for(let en of ENDINGS){if(en.cond&&en.cond({...cs,age:gs.age})){if(!ending||(en.order&&(!ending.order||en.order<ending.order))){ending=en}}}
-if(ending){if(!gs.endings.includes(ending.id)){gs.endings.push(ending.id);save()}
-showEnding(ending);return}
-if(gs.age>=100){showEnding({name:'寿终正寝',type:'normal',desc:'活到了100岁'});return}
-continueGame()}
-function showEnding(en){let html='<h3 style="color:'+(en.type==='death'?'#ef4444':en.type==='special'?'#feca57':'#4ade80')+'">'+en.name+'</h3><p>'+en.desc+'</p><p style="color:#888;margin-top:15px">享年：'+gs.age+'岁</p>';
-if(gs.history.length>0){html+='<div style="margin-top:20px"><h4>人生轨迹：</h4>'+gs.history.slice(-10).map(h=>'<p style="color:#aaa;font-size:0.9em">'+h.age+'岁：'+h.changes.join('，')+'</p>').join('')+'</div>'}
-document.getElementById('endingDetailTitle').innerHTML='🏆 '+en.name;document.getElementById('endingDetailContent').innerHTML=html;show('endingDetail')
-}
-function showEndings(){let html='';ENDINGS.forEach(e=>{const done=gs.endings.includes(e.id);html+='<div class="ending-item '+(done?'completed':'locked')+'" onclick="'+(done?'showEndingDetail(\''+e.id+'\')':'')+'"><span class="ending-name">'+(done?'')+e.name+'</span><span class="ending-status">'+(done?'已达成':'未达成')+'</span></div>'})
-document.getElementById('endingList').innerHTML=html;show('endingInterface')}
-function showEndingDetail(id){const e=ENDINGS.find(en=>en.id===id);if(e){let html='<h3 style="color:#feca57">'+e.name+'</h3><p>'+e.desc+'</p>';if(gs.history.length>0){html+='<div style="margin-top:20px"><h4>人生轨迹：</h4>'+gs.history.slice(-10).map(h=>'<p style="color:#aaa;font-size:0.9em">'+h.age+'岁：'+h.changes.join('，')+'</p>').join('')+'</div>'}document.getElementById('endingDetailTitle').innerHTML='🏆 '+e.name;document.getElementById('endingDetailContent').innerHTML=html;show('endingDetail')}}
-function showStats(){const char=gs.character;if(!char){backToMenu();return}
-let html='<div class="stats-grid"><div class="stat-item"><div class="stat-label">总游戏次数</div><div class="stat-value">'+(gs.endings.length+1)+'</div></div><div class="stat-item"><div class="stat-label">已解锁结局</div><div class="stat-value">'+gs.endings.length+'/'+ENDINGS.length+'</div></div></div>';if(char){html+='<h3 style="margin:20px 0 15px">当前角色</h3><p><strong>性别：</strong>'+char.gender+' <strong>职业：</strong>'+char.career+'</p><p style="margin:10px 0">'+char.desc+'</p><div style="margin-top:15px">'+char.talents.map(t=>'<span class="talent-tag">'+t.name+'</span>').join('')+'</div>'}document.getElementById('playerStats').innerHTML=html;show('statsInterface')}
+function startGame(){var c=genChar();gameState.character=c;gameState.stats={IQ:c.stats.IQ,MONEY:c.stats.MONEY,LUCK:c.stats.LUCK,HP:c.stats.HP,CHA:c.stats.CHA};gameState.age=0;gameState.history=[];currentStats={IQ:c.stats.IQ,MONEY:c.stats.MONEY,LUCK:c.stats.LUCK,HP:c.stats.HP,CHA:c.stats.CHA};dispChar(c);showScreen('characterCreate')}
+function rerollCharacter(){var c=genChar();gameState.character=c;gameState.stats={IQ:c.stats.IQ,MONEY:c.stats.MONEY,LUCK:c.stats.LUCK,HP:c.stats.HP,CHA:c.stats.CHA};currentStats={IQ:c.stats.IQ,MONEY:c.stats.MONEY,LUCK:c.stats.LUCK,HP:c.stats.HP,CHA:c.stats.CHA};dispChar(c)}
+function confirmCharacter(){save();gameState.age=0;currentStats={IQ:gameState.stats.IQ,MONEY:gameState.stats.MONEY,LUCK:gameState.stats.LUCK,HP:gameState.stats.HP,CHA:gameState.stats.CHA};showScreen('gameInterface');updateStats();triggerNextEvent()}
+function updateStats(){var maxAge=80-(gameState.character.talents.some(function(t){return t.eff.LIFE})?20:0);var p=Math.min(100,(gameState.age/maxAge)*100);document.getElementById('ageDisplay').textContent=gameState.age;document.getElementById('lifeProgress').style.width=p+'%';document.getElementById('statsDisplay').innerHTML='<div class="stat-item"><div class="stat-label">年龄</div><div class="stat-value">'+gameState.age+'</div></div><div class="stat-item"><div class="stat-label">智力</div><div class="stat-value">'+currentStats.IQ+'</div></div><div class="stat-item"><div class="stat-label">体力</div><div class="stat-value">'+currentStats.HP+'</div></div><div class="stat-item"><div class="stat-label">魅力</div><div class="stat-value">'+currentStats.CHA+'</div></div><div class="stat-item"><div class="stat-label">运气</div><div class="stat-value">'+currentStats.LUCK+'</div></div><div class="stat-item"><div class="stat-label">金钱</div><div class="stat-value">'+currentStats.MONEY+'</div></div>'}
+function getEvent(){var pool=EVENTS.filter(function(e){return!e.rand&&gameState.age>=e.min&&gameState.age<=e.max});var randPool=EVENTS.filter(function(e){return e.rand});var list=Math.random()>0.6?randPool:pool;return ri(list)}
+function triggerNextEvent(){var e=getEvent();var et=ri(e.texts);document.getElementById('eventText').textContent=et.t;var ca=document.getElementById('choicesArea');if(et.c.length===0){ca.innerHTML='<button class="btn" onclick="handleChoice(null)">继续</button>'}else{ca.innerHTML=et.c.map(function(c,i){return'<button class="choice-btn" onclick="handleChoice('+i+')">'+c.tx+'</button>'}).join('')}}
+function handleChoice(idx){var e=getEvent();var et=ri(e.texts);var eff={};if(idx!==null&&et.c[idx]){eff=et.c[idx].e||{}}
+processEffects(eff)}
+function processEffects(eff){var logs=[];Object.keys(eff).forEach(function(k){var v=eff[k];if(Array.isArray(v)){var ok=Math.random()>0.4;var val=ok?v[0]:v[1];currentStats[k]=Math.max(0,(currentStats[k]||0)+val);logs.push(k+':'+(val>=0?'+':'')+val+(ok?' OK':' FAIL'))}else{currentStats[k]=Math.max(0,(currentStats[k]||0)+v);logs.push(k+':'+(v>=0?'+':'')+v)}});
+gameState.character.talents.forEach(function(t){if(t.eff.IQ_G){currentStats.IQ+=t.eff.IQ_G;logs.push('智力:+'+t.eff.IQ_G+'*')}if(t.eff.CHA_G){currentStats.CHA+=t.eff.CHA_G;logs.push('魅力:+'+t.eff.CHA_G+'*')}if(t.eff.LUCK_G){currentStats.LUCK+=t.eff.LUCK_G;logs.push('运气:+'+t.eff.LUCK_G+'*')}});
+gameState.age++;gameState.history.push({age:gameState.age,changes:logs});save();updateStats();checkEnding()}
+function checkEnding(){var ending=null;for(var i=0;i<ENDINGS.length;i++){var en=ENDINGS[i];if(en.cond&&en.cond({age:gameState.age,IQ:currentStats.IQ,HP:currentStats.HP,CHA:currentStats.CHA,LUCK:currentStats.LUCK,MONEY:currentStats.MONEY})){if(!ending||(en.order&&(!ending.order||en.order<ending.order))){ending=en}}}
+if(ending){if(gameState.endings.indexOf(ending.id)===-1){gameState.endings.push(ending.id);save()}
+showEndingScreen(ending);return}
+if(gameState.age>=100){showEndingScreen({name:'寿终正寝',type:'normal',desc:'活到了100岁'});return}
+triggerNextEvent()}
+function showEndingScreen(en){var color=en.type==='death'?'#ef4444':en.type==='special'?'#feca57':'#4ade80';var html='<h3 style="color:'+color+'">'+en.name+'</h3><p>'+en.desc+'</p><p style="color:#888;margin-top:15px">享年：'+gameState.age+'岁</p>';if(gameState.history.length>0){html+='<div style="margin-top:20px"><h4>人生轨迹：</h4>'+gameState.history.slice(-10).map(function(h){return'<p style="color:#aaa;font-size:0.9em">'+h.age+'岁：'+h.changes.join('，')+'</p>'}).join('')+'</div>'}document.getElementById('endingDetailTitle').innerHTML='🏆 '+en.name;document.getElementById('endingDetailContent').innerHTML=html;showScreen('endingDetail')}
+function showEndings(){var html='';for(var i=0;i<ENDINGS.length;i++){var e=ENDINGS[i];var done=gameState.endings.indexOf(e.id)!==-1;html+='<div class="ending-item '+(done?'completed':'locked')+'" onclick="'+(done?'showEndingDetail(&quot;'+e.id+'&quot;)':'')+'"><span class="ending-name">'+e.name+'</span><span class="ending-status">'+(done?'已达成':'未达成')+'</span></div>'}document.getElementById('endingList').innerHTML=html;showScreen('endingInterface')}
+function showEndingDetail(id){for(var i=0;i<ENDINGS.length;i++){var e=ENDINGS[i];if(e.id===id){var html='<h3 style="color:#feca57">'+e.name+'</h3><p>'+e.desc+'</p>';if(gameState.history.length>0){html+='<div style="margin-top:20px"><h4>人生轨迹：</h4>'+gameState.history.slice(-10).map(function(h){return'<p style="color:#aaa;font-size:0.9em">'+h.age+'岁：'+h.changes.join('，')+'</p>'}).join('')+'</div>'}document.getElementById('endingDetailTitle').innerHTML='🏆 '+e.name;document.getElementById('endingDetailContent').innerHTML=html;showScreen('endingDetail');return}}}
+function showStats(){var char=gameState.character;if(!char){backToMenu();return}
+var html='<div class="stats-grid"><div class="stat-item"><div class="stat-label">总游戏次数</div><div class="stat-value">'+(gameState.endings.length+1)+'</div></div><div class="stat-item"><div class="stat-label">已解锁结局</div><div class="stat-value">'+gameState.endings.length+'/'+ENDINGS.length+'</div></div></div>';if(char){html+='<h3 style="margin:20px 0 15px">当前角色</h3><p><strong>性别：</strong>'+char.gender+' <strong>职业：</strong>'+char.career+'</p><p style="margin:10px 0">'+char.desc+'</p><div style="margin-top:15px">'+char.talents.map(function(t){return'<span class="talent-tag">'+t.name+'</span>'}).join('')+'</div>'}document.getElementById('playerStats').innerHTML=html;showScreen('statsInterface')}
 function restartGame(){clearGame();startGame()}
-function clearGame(){localStorage.removeItem('rebirth');gs={character:null,stats:null,age:0,endings:[],history:[]};cs=null}
-function show(id){['mainMenu','characterCreate','gameInterface','endingInterface','endingDetail','statsInterface'].forEach(i=>document.getElementById(i).classList.add('hidden'));document.getElementById(id).classList.remove('hidden')}
-function backToMenu(){show('mainMenu')}
-if(!load()){
-  show('mainMenu');
-}
+function clearGame(){localStorage.removeItem('rebirth');gameState={character:null,stats:null,age:0,endings:[],history:[]};currentStats=null}
+function showScreen(id){var screens=['mainMenu','characterCreate','gameInterface','endingInterface','endingDetail','statsInterface'];for(var i=0;i<screens.length;i++){document.getElementById(screens[i]).classList.add('hidden')}document.getElementById(id).classList.remove('hidden')}
+function backToMenu(){showScreen('mainMenu')}
+if(!loadGame()){showScreen('mainMenu')}
 </script>
 </body>
 </html>
